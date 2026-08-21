@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { DragEvent } from "react";
 
 import Header from "./components/Header";
@@ -7,6 +7,8 @@ import Board from "./components/Board";
 import SearchBar from "./components/SearchBar";
 
 import type { Task, TaskStatus } from "./types/task";
+
+const STORAGE_KEY = "taskflow-tasks";
 
 const initialTasks: Task[] = [
     {
@@ -58,7 +60,14 @@ const initialTasks: Task[] = [
 
 function App() {
     const [tasks, setTasks] = useState<Task[]>(() => {
-        return initialTasks;
+        try {
+            const savedTasks = localStorage.getItem(STORAGE_KEY);
+            return savedTasks
+                ? JSON.parse(savedTasks)
+                : initialTasks;
+        } catch {
+            return initialTasks;
+        }
     });
 
     const [editingTask, setEditingTask] =
@@ -161,6 +170,13 @@ function App() {
         return matchesSearch && matchesPriority;
         });
     }, [tasks, searchTerm, priorityFilter]);
+
+    useEffect(() => {
+        localStorage.setItem(
+            STORAGE_KEY,
+            JSON.stringify(tasks)
+        );
+    }, [tasks]);
 
     return (
         <div className="app">
