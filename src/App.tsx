@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import type { DragEvent } from "react";
 
+import { ClipboardCheck } from "lucide-react";
+
 import Header from "./components/Header";
 import TaskForm from "./components/TaskForm";
 import Board from "./components/Board";
@@ -178,6 +180,17 @@ function App() {
         );
     }, [tasks]);
 
+    const completedCount = tasks.filter(
+        (task) => task.status === "completed"
+    ).length;
+
+    const completionPercentage =
+        tasks.length > 0
+            ? Math.round(
+                (completedCount / tasks.length) * 100
+            )
+            : 0;
+
     return (
         <div className="app">
             <Header taskCount={tasks.length} />
@@ -190,6 +203,16 @@ function App() {
                             Organize your development tasks and track
                             your progress.
                         </p>
+                    </div>
+
+                    <div className="progress-card">
+                        <div className="progress-icon">
+                            <ClipboardCheck size={22} />
+                        </div>
+                        <div>
+                            <strong>{completionPercentage}%</strong>
+                            <span>Project completed</span>
+                        </div>
                     </div>
 
                 </section>
