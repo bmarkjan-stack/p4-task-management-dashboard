@@ -1,9 +1,11 @@
 import { useState } from "react";
+import type { DragEvent } from "react";
 
 import Header from "./components/Header";
 import TaskForm from "./components/TaskForm";
+import Board from "./components/Board";
 
-import type { Task } from "./types/task";
+import type { Task, TaskStatus } from "./types/task";
 
 const initialTasks: Task[] = [
     {
@@ -93,6 +95,51 @@ function App() {
         setEditingTask(null);
     }
 
+
+
+    function deleteTask(id: string) {
+        const taskToDelete = tasks.find(
+            (task) => task.id === id
+        );
+        if (!taskToDelete) {
+            return;
+        }
+        const confirmed = window.confirm(
+            `Delete "${taskToDelete.title}"?`
+        );
+        if (!confirmed) {
+            return;
+        }
+        setTasks((currentTasks) =>
+            currentTasks.filter((task) => task.id !== id)
+        );
+        if (editingTask?.id === id) {
+        setEditingTask(null);
+        }
+    }
+
+    function handleDrop(
+        event: DragEvent<HTMLElement>,
+        status: TaskStatus
+    ) {
+        event.preventDefault();
+        const taskId = event.dataTransfer.getData("taskId");
+        if (!taskId) {
+            return;
+        }
+        setTasks((currentTasks) =>
+            currentTasks.map((task) =>
+                task.id === taskId
+                    ? {
+                        ...task,
+                        status,
+                    }
+                    : task
+            )
+        );
+    }
+
+
     return (
         <div className="app">
             <Header taskCount={tasks.length} />
@@ -113,6 +160,12 @@ function App() {
                     onAddTask={addTask}
                     onUpdateTask={updateTask}
                     onCancelEdit={() => setEditingTask(null)}
+                />
+                <Board
+                    tasks={tasks}
+                    onEdit={setEditingTask}
+                    onDelete={deleteTask}
+                    onDrop={handleDrop}
                 />
             </div>
         </div>
