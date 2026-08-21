@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import type { DragEvent } from "react";
 
 import Header from "./components/Header";
 import TaskForm from "./components/TaskForm";
 import Board from "./components/Board";
+import SearchBar from "./components/SearchBar";
 
 import type { Task, TaskStatus } from "./types/task";
 
@@ -95,8 +96,6 @@ function App() {
         setEditingTask(null);
     }
 
-
-
     function deleteTask(id: string) {
         const taskToDelete = tasks.find(
             (task) => task.id === id
@@ -139,6 +138,29 @@ function App() {
         );
     }
 
+    const [searchTerm, setSearchTerm] = useState("");
+    const [priorityFilter, setPriorityFilter] = useState("all");
+
+    const filteredTasks = useMemo(() => {
+        const normalizedSearch = searchTerm
+            .toLowerCase()
+            .trim();
+        return tasks.filter((task) => {
+            const matchesSearch =
+                normalizedSearch === "" ||
+                    task.title
+                        .toLowerCase()
+                        .includes(normalizedSearch) ||
+                    task.description
+                        .toLowerCase()
+                        .includes(normalizedSearch);
+
+            const matchesPriority =
+                priorityFilter === "all" ||
+                    task.priority === priorityFilter;
+        return matchesSearch && matchesPriority;
+        });
+    }, [tasks, searchTerm, priorityFilter]);
 
     return (
         <div className="app">
@@ -155,18 +177,40 @@ function App() {
                     </div>
 
                 </section>
+
+                <SearchBar
+                    searchTerm={searchTerm}
+                    priorityFilter={priorityFilter}
+                    onSearchChange={setSearchTerm}
+                    onPriorityChange={setPriorityFilter}
+                    onClear={() => setSearchTerm("")}
+                />
+
                 <TaskForm
                     editingTask={editingTask}
                     onAddTask={addTask}
                     onUpdateTask={updateTask}
                     onCancelEdit={() => setEditingTask(null)}
                 />
-                <Board
-                    tasks={tasks}
-                    onEdit={setEditingTask}
-                    onDelete={deleteTask}
-                    onDrop={handleDrop}
-                />
+
+                <section className="board-section">
+                    <div className="board-heading">
+                        <div>
+                            <h2>Project Tasks</h2>
+                            <p>
+                                {filteredTasks.length} of {tasks.length}{" "}
+                                tasks displayed
+                            </p>
+                        </div>
+                    </div>
+
+                    <Board
+                        tasks={filteredTasks}
+                        onEdit={setEditingTask}
+                        onDelete={deleteTask}
+                        onDrop={handleDrop}
+                    />
+                </section>
             </div>
         </div>
     );
