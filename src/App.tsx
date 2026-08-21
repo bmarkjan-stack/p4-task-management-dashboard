@@ -1,6 +1,7 @@
 import { useState } from "react";
 
 import Header from "./components/Header";
+import TaskForm from "./components/TaskForm";
 
 import type { Task } from "./types/task";
 
@@ -53,9 +54,44 @@ const initialTasks: Task[] = [
 ];
 
 function App() {
-    const [tasks] = useState<Task[]>(() => {
+    const [tasks, setTasks] = useState<Task[]>(() => {
         return initialTasks;
     });
+
+    const [editingTask, setEditingTask] =
+        useState<Task | null>(null);
+
+    function addTask(
+        taskData: Omit<Task, "id" | "createdAt">
+    ) {
+        const newTask: Task = {
+            ...taskData,
+            id: crypto.randomUUID(),
+            createdAt: new Date().toISOString(),
+        };
+
+        setTasks((currentTasks) => [
+            ...currentTasks,
+            newTask,
+        ]);
+    }
+
+    function updateTask(
+        id: string,
+        updates: Omit<Task, "id" | "createdAt">
+    ) {
+        setTasks((currentTasks) =>
+            currentTasks.map((task) =>
+                task.id === id
+                    ? {
+                        ...task,
+                        ...updates,
+                    }
+                    : task
+            )
+        );
+        setEditingTask(null);
+    }
 
     return (
         <div className="app">
@@ -72,6 +108,12 @@ function App() {
                     </div>
 
                 </section>
+                <TaskForm
+                    editingTask={editingTask}
+                    onAddTask={addTask}
+                    onUpdateTask={updateTask}
+                    onCancelEdit={() => setEditingTask(null)}
+                />
             </div>
         </div>
     );
