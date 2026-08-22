@@ -1,0 +1,647 @@
+:root {
+    font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    color: #172033;
+    background: #f5f7fb;
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    min-width: 320px;
+    background: #f5f7fb;
+}
+
+button,
+input,
+select,
+textarea {
+    font: inherit;
+}
+
+button {
+    cursor: pointer;
+}
+
+.app {
+    min-height: 100vh;
+}
+
+/* Header */
+
+.header {
+    background: #111827;
+    color: white;
+    padding: 18px 24px;
+}
+
+.header-content {
+    max-width: 1400px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.brand-icon {
+    width: 46px;
+    height: 46px;
+    display: grid;
+    place-items: center;
+    border-radius: 12px;
+    background: #2563eb;
+}
+
+.brand h1 {
+    margin: 0;
+    font-size: 1.25rem;
+}
+
+.brand p {
+    margin: 3px 0 0;
+    color: #9ca3af;
+    font-size: 0.85rem;
+}
+
+.task-summary {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    color: #d1d5db;
+}
+
+.task-summary strong {
+    font-size: 1.4rem;
+    color: white;
+}
+
+.task-summary span {
+    font-size: 0.85rem;
+}
+
+/* Main container */
+
+.container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 32px 24px 60px;
+}
+
+/* Welcome */
+
+.welcome-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 30px;
+    margin-bottom: 28px;
+}
+
+.eyebrow {
+    margin: 0 0 6px;
+    color: #2563eb;
+    font-size: 0.75rem;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+}
+
+.welcome-section h2 {
+    margin: 0;
+    font-size: 2rem;
+    color: #111827;
+}
+
+.welcome-section p:not(.eyebrow) {
+    margin: 8px 0 0;
+    color: #6b7280;
+}
+
+.progress-card {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    padding: 15px 18px;
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
+    box-shadow: 0 4px 15px rgba(15, 23, 42, 0.04);
+}
+
+.progress-icon {
+    width: 42px;
+    height: 42px;
+    display: grid;
+    place-items: center;
+    border-radius: 10px;
+    background: #eff6ff;
+    color: #2563eb;
+}
+
+.progress-card div:last-child {
+    display: flex;
+    flex-direction: column;
+}
+
+.progress-card strong {
+    font-size: 1.2rem;
+}
+
+.progress-card span {
+    color: #6b7280;
+    font-size: 0.8rem;
+}
+
+/* Form */
+
+.task-form-section {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 16px;
+    padding: 22px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 15px rgba(15, 23, 42, 0.04);
+}
+
+.section-heading {
+    margin-bottom: 18px;
+}
+
+.section-heading h2 {
+    margin: 0;
+    font-size: 1.05rem;
+}
+
+.section-heading p {
+    margin: 4px 0 0;
+    color: #6b7280;
+    font-size: 0.85rem;
+}
+
+.task-form {
+    display: grid;
+    grid-template-columns: minmax(220px, 2fr) minmax(140px, 1fr) minmax(150px, 1fr);
+    gap: 15px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+
+.form-group-full {
+    grid-column: 1 / -1;
+}
+
+.form-group label {
+    color: #374151;
+    font-size: 0.8rem;
+    font-weight: 700;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 9px;
+    background: white;
+    color: #111827;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.form-group textarea {
+    resize: vertical;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.form-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.primary-button,
+.secondary-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    border: none;
+    border-radius: 9px;
+    padding: 10px 15px;
+    font-weight: 700;
+}
+
+.primary-button {
+    background: #2563eb;
+    color: white;
+}
+
+.primary-button:hover {
+    background: #1d4ed8;
+}
+
+.secondary-button {
+    background: #f3f4f6;
+    color: #374151;
+}
+
+.secondary-button:hover {
+    background: #e5e7eb;
+}
+
+/* Toolbar */
+
+.toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 22px;
+}
+
+.search-container {
+    flex: 1;
+    max-width: 550px;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 10px 13px;
+    background: white;
+    border: 1px solid #d1d5db;
+    border-radius: 10px;
+    color: #6b7280;
+}
+
+.search-container input {
+    flex: 1;
+    border: none;
+    outline: none;
+    background: transparent;
+}
+
+.icon-button {
+    border: none;
+    background: transparent;
+    color: #6b7280;
+    display: grid;
+    place-items: center;
+    padding: 3px;
+}
+
+.filter-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #4b5563;
+    font-size: 0.85rem;
+}
+
+.filter-container select {
+    padding: 9px 11px;
+    border: 1px solid #d1d5db;
+    border-radius: 9px;
+    background: white;
+}
+
+/* Board */
+
+.board-section {
+    margin-top: 25px;
+}
+
+.board-heading {
+    margin-bottom: 15px;
+}
+
+.board-heading h2 {
+    margin: 0;
+    font-size: 1.2rem;
+}
+
+.board-heading p {
+    margin: 4px 0 0;
+    color: #6b7280;
+    font-size: 0.8rem;
+}
+
+.board {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px;
+    align-items: start;
+}
+
+/* Columns */
+
+.column {
+    min-height: 450px;
+    background: #eef1f6;
+    border-radius: 14px;
+    padding: 13px;
+    transition: background 0.2s, transform 0.2s;
+}
+
+.column:hover {
+    background: #e9edf4;
+}
+
+.column-header {
+    padding: 4px 3px 14px;
+}
+
+.column-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.column-title h2 {
+    margin: 0;
+    font-size: 0.95rem;
+    font-weight: 800;
+}
+
+.column-todo .column-title svg {
+    color: #6b7280;
+}
+
+.column-in-progress .column-title svg {
+    color: #f59e0b;
+}
+
+.column-completed .column-title svg {
+    color: #10b981;
+}
+
+.task-count {
+    display: inline-grid;
+    place-items: center;
+    min-width: 23px;
+    height: 23px;
+    padding: 0 6px;
+    background: white;
+    border-radius: 20px;
+    color: #6b7280;
+    font-size: 0.72rem;
+    font-weight: 700;
+}
+
+/* Task list */
+
+.task-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-height: 370px;
+}
+
+/* Task Card */
+
+.task-card {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 11px;
+    padding: 14px;
+    box-shadow: 0 2px 5px rgba(15, 23, 42, 0.04);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.task-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(15, 23, 42, 0.08);
+}
+
+.task-card:active {
+    cursor: grabbing;
+}
+
+.task-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 9px;
+}
+
+.drag-handle {
+    color: #9ca3af;
+    cursor: grab;
+    display: flex;
+}
+
+.priority-badge {
+    padding: 4px 8px;
+    border-radius: 20px;
+    font-size: 0.65rem;
+    font-weight: 800;
+    text-transform: uppercase;
+}
+
+.priority-badge.low {
+    background: #ecfdf5;
+    color: #047857;
+}
+
+.priority-badge.medium {
+    background: #fffbeb;
+    color: #b45309;
+}
+
+.priority-badge.high {
+    background: #fef2f2;
+    color: #dc2626;
+}
+
+.task-card h3 {
+    margin: 0;
+    color: #111827;
+    font-size: 0.9rem;
+    line-height: 1.4;
+}
+
+.task-description {
+    margin: 7px 0 13px;
+    color: #6b7280;
+    font-size: 0.78rem;
+    line-height: 1.5;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    line-clamp: 3;
+    overflow: hidden;
+}
+
+.task-card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    padding-top: 10px;
+    border-top: 1px solid #f0f1f3;
+}
+
+.due-date {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    color: #6b7280;
+    font-size: 0.7rem;
+}
+
+.task-actions {
+    display: flex;
+    gap: 3px;
+}
+
+.task-actions button {
+    display: grid;
+    place-items: center;
+    width: 28px;
+    height: 28px;
+    border: none;
+    border-radius: 7px;
+    background: transparent;
+    color: #6b7280;
+}
+
+.task-actions button:hover {
+    background: #f3f4f6;
+    color: #2563eb;
+}
+
+.task-actions button:last-child:hover {
+    color: #dc2626;
+}
+
+/* Empty column */
+
+.empty-column {
+    min-height: 150px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    border: 2px dashed #d1d5db;
+    border-radius: 10px;
+    color: #9ca3af;
+}
+
+.empty-column p {
+    margin: 0 0 4px;
+    font-size: 0.82rem;
+    font-weight: 700;
+}
+
+.empty-column span {
+    font-size: 0.7rem;
+}
+
+/* Responsive */
+
+@media (max-width: 1000px) {
+    .board {
+        grid-template-columns: 1fr;
+    }
+
+    .column {
+        min-height: auto;
+    }
+
+    .task-list {
+        min-height: 120px;
+    }
+
+    .task-form {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .form-group-large {
+        grid-column: 1 / -1;
+    }
+}
+
+@media (max-width: 700px) {
+    .header {
+        padding: 15px;
+    }
+
+    .header-content {
+        align-items: flex-start;
+    }
+
+    .task-summary {
+        display: none;
+    }
+
+    .container {
+        padding: 24px 15px 40px;
+    }
+
+    .welcome-section {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .welcome-section h2 {
+        font-size: 1.6rem;
+    }
+
+    .progress-card {
+        width: 100%;
+    }
+
+    .toolbar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .search-container {
+        max-width: none;
+    }
+
+    .filter-container {
+        justify-content: space-between;
+    }
+
+    .filter-container select {
+        flex: 1;
+    }
+
+    .task-form {
+        grid-template-columns: 1fr;
+    }
+
+    .form-group-large,
+    .form-group-full {
+        grid-column: auto;
+    }
+
+    .form-actions {
+        flex-direction: column;
+    }
+
+    .primary-button,
+    .secondary-button {
+        width: 100%;
+    }
+}
