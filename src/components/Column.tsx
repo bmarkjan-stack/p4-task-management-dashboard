@@ -1,64 +1,33 @@
+import { useDroppable } from "@dnd-kit/core";
 import type { ReactNode } from "react";
+
 import type { Task, TaskStatus } from "../types/task";
-import TaskCard from "./TaskCard";
 
 interface ColumnProps {
     title: string;
     status: TaskStatus;
     tasks: Task[];
-    count: number;
     icon: ReactNode;
-    onEdit: (task: Task) => void;
-    onDelete: (id: string) => void;
-    onDrop: (event: React.DragEvent<HTMLElement>, status: TaskStatus) => void;
 }
 
-function Column({
-    title,
-    status,
-    tasks,
-    count,
-    icon,
-    onEdit,
-    onDelete,
-    onDrop,
-}: ColumnProps) {
-    function handleDragOver(
-        event: React.DragEvent<HTMLDivElement>
-    ) {
-        event.preventDefault();
-        event.dataTransfer.dropEffect = "move";
-    }
+function Column({ title, status, tasks, icon }: ColumnProps) {
+    // The column's id (its TaskStatus) is what Board.handleDragEnd reads
+    // off `over.id` to know which status to move a dropped task into.
+    const { setNodeRef, isOver } = useDroppable({ id: status });
 
     return (
-        <section
-            className={`column column-${status}`}
-            onDragOver={handleDragOver}
-            onDrop={(event) => onDrop(event, status)}
-        >
+        <section className={`column column-${status}`}>
             <div className="column-header">
                 <div className="column-title">
                     {icon}
                     <h2>{title}</h2>
-                    <span className="task-count">{count}</span>
+                    <span className="task-count">{tasks.length}</span>
                 </div>
             </div>
-            <div className="task-list">
-                {tasks.length > 0 ? (
-                    tasks.map((task) => (
-                        <TaskCard
-                            key={task.id}
-                            task={task}
-                            onEdit={onEdit}
-                            onDelete={onDelete}
-                        />
-                    ))
-                ) : (
-                    <div className="empty-column">
-                        <p>No tasks here</p>
-                        <span>Drag a task into this column</span>
-                    </div>
-                )}
+            <div
+                ref={setNodeRef}
+                className={`task-list${isOver ? " task-list-over" : ""}`}
+            >
             </div>
         </section>
     );

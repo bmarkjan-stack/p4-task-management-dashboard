@@ -1,67 +1,70 @@
-import { CheckCircle2, Circle, Clock3,
-} from "lucide-react";
+import {
+    DndContext,
+    KeyboardSensor,
+    PointerSensor,
+    TouchSensor,
+    closestCenter,
+    useSensor,
+    useSensors,
+} from "@dnd-kit/core";
+import type { DragEndEvent } from "@dnd-kit/core";
+import { CheckCircle2, Circle, Clock3 } from "lucide-react";
+import type { ReactNode } from "react";
 
 import type { Task, TaskStatus } from "../types/task";
+import { useTaskContext } from "../context/TaskContext";
 import Column from "./Column";
 
 interface BoardProps {
     tasks: Task[];
-    onEdit: (task: Task) => void;
-    onDelete: (id: string) => void;
-    onDrop: (
-        event: React.DragEvent<HTMLElement>,
-        status: TaskStatus
-    ) => void;
 }
 
-function Board({
-    tasks,
-    onEdit,
-    onDelete,
-    onDrop,
-}: BoardProps) {
-    const todoTasks = tasks.filter(
-        (task) => task.status === "todo"
+const COLUMN_META: Array<{ status: TaskStatus; title: string; icon: ReactNode }> = [
+    { status: "todo", title: "To Do", icon: <Circle size={19} /> },
+    { status: "in-progress", title: "In Progress", icon: <Clock3 size={19} /> },
+    { status: "completed", title: "Completed", icon: <CheckCircle2 size={19} /> },
+];
+
+function Board({ tasks }: BoardProps) {
+    const { moveTask } = useTaskContext();
+
+    // PointerSensor covers mouse/trackpad, TouchSensor covers phones and
+    // tablets, and KeyboardSensor makes drag-and-drop reachable without a
+    // pointer at all (each TaskCard's drag handle is a focusable button).
+    const sensors = useSensors(
+        useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
+        useSensor(TouchSensor, {
+            activationConstraint: { delay: 150, tolerance: 6 },
+        }),
+        useSensor(KeyboardSensor)
     );
-    const inProgressTasks = tasks.filter(
-        (task) => task.status === "in-progress"
-    );
-    const completedTasks = tasks.filter(
-        (task) => task.status === "completed"
-    );
+
+    function handleDragEnd(event: DragEndEvent) {
+        const { active, over } = event;
+        if (!over) {
+            return;
+        }
+        moveTask(String(active.id), over.id as TaskStatus);
+    }
+
     return (
-        <main className="board">
-            <Column
-                title="To Do"
-                status="todo"
-                tasks={todoTasks}
-                count={todoTasks.length}
-                icon={<Circle size={19} />}
-                onEdit={onEdit}
-                onDelete={onDelete}
-                onDrop={onDrop}
-            />
-            <Column
-                title="In Progress"
-                status="in-progress"
-                tasks={inProgressTasks}
-                count={inProgressTasks.length}
-                icon={<Clock3 size={19} />}
-                onEdit={onEdit}
-                onDelete={onDelete}
-                onDrop={onDrop}
-            />
-            <Column
-                title="Completed"
-                status="completed"
-                tasks={completedTasks}
-                count={completedTasks.length}
-                icon={<CheckCircle2 size={19} />}
-                onEdit={onEdit}
-                onDelete={onDelete}
-                onDrop={onDrop}
-            />
-        </main>
+        <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={handleDragEnd}
+        >
+            <main className="board">
+                {COLUMN_META.map(({ status, title, icon }) => (
+                    <Column
+                        key={status}
+                        title={title}
+                        status={status}
+                        icon={icon}
+                        tasks={tasks.filter((task) => task.status === status)}
+                    />
+                ))}
+            </main>
+        </DndContext>
     );
 }
 
