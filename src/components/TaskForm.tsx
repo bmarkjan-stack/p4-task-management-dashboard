@@ -1,31 +1,31 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Plus, Save, X } from "lucide-react";
-import type { Priority, Task } from "../types/task";
 
-interface TaskFormProps {
-    editingTask: Task | null;
-    onAddTask: (task: Omit<Task, "id" | "createdAt">) => void;
-    onUpdateTask: (
-        id: string,
-        updates: Omit<Task, "id" | "createdAt">
-    ) => void;
-    onCancelEdit: () => void;
-}
+import type { Priority } from "../types/task";
+import { useTaskContext } from "../context/TaskContext";
 
-function TaskForm({
-    editingTask,
-    onAddTask,
-    onUpdateTask,
-    onCancelEdit,
-}: TaskFormProps) {
-    const [title, setTitle] = useState(editingTask?.title ?? "");
-    const [description, setDescription] = useState(
-        editingTask?.description ?? ""
-    );
-    const [priority, setPriority] = useState<Priority>(
-        editingTask?.priority ?? "medium"
-    );
-    const [dueDate, setDueDate] = useState(editingTask?.dueDate ?? "");
+function TaskForm() {
+    const { editingTask, activeBoardId, addTask, updateTask, cancelEdit } =
+        useTaskContext();
+
+    const [title, setTitle] = useState("");
+    const [description, setDescription] = useState("");
+    const [priority, setPriority] = useState<Priority>("medium");
+    const [dueDate, setDueDate] = useState("");
+
+    // Bug fix: these fields used to be initialized once via useState's
+    // initializer (`useState(editingTask?.title ?? "")`), which only runs on
+    // the component's first mount. Because TaskForm stays mounted the whole
+    // time, clicking "Edit" on task A and then, without cancelling, clicking
+    // "Edit" on task B left task A's values showing under task B's edit
+    // session. Syncing from `editingTask` in an effect keeps the form
+    // correct no matter which task (or none) is being edited.
+    useEffect(() => {
+        setTitle(editingTask?.title ?? "");
+        setDescription(editingTask?.description ?? "");
+        setPriority(editingTask?.priority ?? "medium");
+        setDueDate(editingTask?.dueDate ?? "");
+    }, [editingTask]);
 
     function resetForm() {
         setTitle("");
@@ -34,7 +34,7 @@ function TaskForm({
         setDueDate("");
     }
 
-    function handleSubmit(event: React.SubmitEvent<HTMLFormElement>) {
+    function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
         event.preventDefault();
 
         if (!title.trim()) {
@@ -44,23 +44,23 @@ function TaskForm({
         const taskData = {
             title: title.trim(),
             description: description.trim(),
-            status: editingTask?.status ?? "todo",
+            status: editingTask?.status ?? ("todo" as const),
             priority,
             dueDate,
+            boardId: editingTask ?? activeBoardId,
         };
 
         if (editingTask) {
-            onUpdateTask(editingTask.id, taskData);
+            updateTask(editingTask.id, taskData);
         } else {
-            onAddTask(taskData);
+            addTask(taskData);
         }
-
         resetForm();
     }
 
     function handleCancel() {
         resetForm();
-        onCancelEdit();
+        cancelEdit();
     }
 
     return (
@@ -103,7 +103,6 @@ function TaskForm({
                         <option value="high">High</option>
                     </select>
                 </div>
-
                 <div className="form-group">
                     <label htmlFor="task-due-date">Due date</label>
                     <input
@@ -113,7 +112,6 @@ function TaskForm({
                         onChange={(event) => setDueDate(event.target.value)}
                     />
                 </div>
-
                 <div className="form-group form-group-full">
                     <label htmlFor="task-description">Description</label>
                     <textarea
@@ -124,13 +122,11 @@ function TaskForm({
                         rows={3}
                     />
                 </div>
-
                 <div className="form-actions">
                     <button type="submit" className="primary-button">
                         {editingTask ? <Save size={18} /> : <Plus size={18} />}
                         {editingTask ? "Save Changes" : "Add Task"}
                     </button>
-
                     {editingTask && (
                         <button
                             type="button"
