@@ -10,4 +10,6 @@ export interface Task {
     priority: Priority;
     dueDate: string;
     createdAt: string;
+    /** Which board this task belongs to. See src/types/board.ts */
+    boardId: string;
 }

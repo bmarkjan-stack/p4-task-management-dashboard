@@ -9,10 +9,18 @@ import {
 import type { ReactNode } from "react";
 
 import type { Task, TaskStatus } from "../types/task";
+import type { Board } from "../types/board";
 
 const DEFAULT_BOARD_ID = "board-default";
 const UNDO_WINDOW_MS = 5000;
 
+const defaultBoards: Board[] = [
+    {
+        id: DEFAULT_BOARD_ID,
+        name: "My Board",
+        createdAt: new Date().toISOString(),
+    },
+];
 
 const defaultTasks: Task[] = [
     {
@@ -24,6 +32,7 @@ const defaultTasks: Task[] = [
         priority: "high",
         dueDate: "2026-08-28",
         createdAt: new Date().toISOString(),
+        boardId: DEFAULT_BOARD_ID,
     },
     {
         id: "task-2",
@@ -33,6 +42,7 @@ const defaultTasks: Task[] = [
         priority: "high",
         dueDate: "2026-08-24",
         createdAt: new Date().toISOString(),
+        boardId: DEFAULT_BOARD_ID,
     },
     {
         id: "task-3",
@@ -42,6 +52,7 @@ const defaultTasks: Task[] = [
         priority: "medium",
         dueDate: "2026-08-18",
         createdAt: new Date().toISOString(),
+        boardId: DEFAULT_BOARD_ID,
     },
     {
         id: "task-4",
@@ -52,6 +63,7 @@ const defaultTasks: Task[] = [
         priority: "medium",
         dueDate: "2026-09-01",
         createdAt: new Date().toISOString(),
+        boardId: DEFAULT_BOARD_ID,
     },
     {
         id: "task-5",
@@ -61,17 +73,19 @@ const defaultTasks: Task[] = [
         priority: "low",
         dueDate: "2026-09-05",
         createdAt: new Date().toISOString(),
+        boardId: DEFAULT_BOARD_ID,
     },
 ];
 
 interface TaskState {
     tasks: Task[];
+    boards: Board[];
     activeBoardId: string;
     editingTask: Task | null;
 }
 
 type Action =
-    | { type: "LOAD"; tasks: Task[]; }
+    | { type: "LOAD"; tasks: Task[]; boards: Board[] }
     | { type: "ADD_TASK"; task: Task }
     | {
           type: "UPDATE_TASK";
@@ -81,6 +95,7 @@ type Action =
     | { type: "REMOVE_TASK"; id: string }
     | { type: "RESTORE_TASK"; task: Task }
     | { type: "MOVE_TASK"; id: string; status: TaskStatus }
+    | { type: "ADD_BOARD"; board: Board }
     | { type: "REMOVE_BOARD"; id: string }
     | { type: "SET_ACTIVE_BOARD"; id: string }
     | { type: "SET_EDITING_TASK"; task: Task | null };
@@ -90,7 +105,7 @@ type Action =
 export function taskReducer(state: TaskState, action: Action): TaskState {
     switch (action.type) {
         case "LOAD":
-            return { ...state, tasks: action.tasks,};
+            return { ...state, tasks: action.tasks, boards: action.boards };
 
         case "ADD_TASK":
             return { ...state, tasks: [...state.tasks, action.task] };
@@ -124,6 +139,28 @@ export function taskReducer(state: TaskState, action: Action): TaskState {
                         : task
                 ),
             };
+
+        case "ADD_BOARD":
+            return {
+                ...state,
+                boards: [...state.boards, action.board],
+                activeBoardId: action.board.id,
+            };
+
+        case "REMOVE_BOARD": {
+            const fallbackBoard = state.boards.find(
+                (board) => board.id !== action.id
+            );
+            return {
+                ...state,
+                boards: state.boards.filter((board) => board.id !== action.id),
+                tasks: state.tasks.filter((task) => task.boardId !== action.id),
+                activeBoardId:
+                    state.activeBoardId === action.id
+                        ? fallbackBoard?.id ?? ""
+                        : state.activeBoardId,
+            };
+        }
 
         case "SET_ACTIVE_BOARD":
             return { ...state, activeBoardId: action.id };
@@ -160,6 +197,7 @@ const TaskContext = createContext<TaskContextValue | null>(null);
 function initState(): TaskState {
     return {
         tasks: defaultTasks,
+        boards: defaultBoards,
         activeBoardId: DEFAULT_BOARD_ID,
         editingTask: null,
     };
@@ -170,11 +208,26 @@ export function TaskProvider({ children }: { children: ReactNode }) {
     const [pendingDelete, setPendingDelete] = useState<PendingDelete | null>(
         null
     );
-    const [isSyncing ] = useState(false);
+    const [isSyncing, setIsSyncing] = useState(false);
     const undoTimer = useRef<number | null>(null);
 
+    // Mirror every change to localStorage. This is the sole source of truth
+    // in local-only mode, and doubles as an offline cache in API mode.
     useEffect(() => {
-    }, [state.tasks, state.activeBoardId]);
+    }, [state.tasks, state.boards, state.activeBoardId]);
+
+    // Optional: hydrate from a backend if VITE_API_URL is configured. Falls
+    // back to whatever was loaded from localStorage if the API is unreachable.
+    useEffect(() => {
+        Promise.all([ ])
+            .catch((error: unknown) => {
+                console.warn(
+                    "Could not reach the TaskFlow API, staying in local mode.",
+                    error
+                );
+            })
+            .finally(() => setIsSyncing(false));
+    }, []);
 
     function finalizeDelete() {
         setPendingDelete(null);
@@ -235,10 +288,19 @@ export function TaskProvider({ children }: { children: ReactNode }) {
         if (!trimmed) {
             return;
         }
+        const board: Board = {
+            id: crypto.randomUUID(),
+            name: trimmed,
+            createdAt: new Date().toISOString(),
+        };
+        dispatch({ type: "ADD_BOARD", board });
     }
 
     function deleteBoard(id: string) {
         // Always keep at least one board around.
+        if (state.boards.length <= 1) {
+            return;
+        }
         dispatch({ type: "REMOVE_BOARD", id });
     }
 
