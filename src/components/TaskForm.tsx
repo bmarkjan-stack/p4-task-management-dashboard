@@ -17,11 +17,15 @@ function TaskForm({
     onAddTask,
     onUpdateTask,
     onCancelEdit,
-    }: TaskFormProps) {
-        const [title, setTitle] = useState(editingTask?.title ?? "");
-        const [description, setDescription] = useState(editingTask?.description ?? "");
-        const [priority, setPriority] = useState<Priority>(editingTask?.priority ?? "medium");
-        const [dueDate, setDueDate] = useState(editingTask?.dueDate ?? "");
+}: TaskFormProps) {
+    const [title, setTitle] = useState(editingTask?.title ?? "");
+    const [description, setDescription] = useState(
+        editingTask?.description ?? ""
+    );
+    const [priority, setPriority] = useState<Priority>(
+        editingTask?.priority ?? "medium"
+    );
+    const [dueDate, setDueDate] = useState(editingTask?.dueDate ?? "");
 
     function resetForm() {
         setTitle("");
@@ -50,6 +54,7 @@ function TaskForm({
         } else {
             onAddTask(taskData);
         }
+
         resetForm();
     }
 
@@ -98,6 +103,7 @@ function TaskForm({
                         <option value="high">High</option>
                     </select>
                 </div>
+
                 <div className="form-group">
                     <label htmlFor="task-due-date">Due date</label>
                     <input
@@ -107,6 +113,7 @@ function TaskForm({
                         onChange={(event) => setDueDate(event.target.value)}
                     />
                 </div>
+
                 <div className="form-group form-group-full">
                     <label htmlFor="task-description">Description</label>
                     <textarea
@@ -117,11 +124,13 @@ function TaskForm({
                         rows={3}
                     />
                 </div>
+
                 <div className="form-actions">
                     <button type="submit" className="primary-button">
                         {editingTask ? <Save size={18} /> : <Plus size={18} />}
                         {editingTask ? "Save Changes" : "Add Task"}
                     </button>
+
                     {editingTask && (
                         <button
                             type="button"
