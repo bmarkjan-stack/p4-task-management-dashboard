@@ -4,6 +4,7 @@ import { CalendarDays, GripVertical, Pencil, Trash2 } from "lucide-react";
 
 import type { Task, TaskStatus } from "../types/task";
 import { useTaskContext } from "../context/TaskContext";
+import { getDueStatus } from "../utils/dueDate";
 
 interface TaskCardProps {
     task: Task;
@@ -33,6 +34,8 @@ function TaskCard({ task }: TaskCardProps) {
 
     // Completed tasks are never flagged overdue/due-soon — there's nothing
     // left to be late on.
+    const dueStatus =
+        task.status === "completed" ? "none" : getDueStatus(task.dueDate);
 
     const style = {
         transform: CSS.Translate.toString(transform),
@@ -45,6 +48,8 @@ function TaskCard({ task }: TaskCardProps) {
             style={style}
             className={[
                 "task-card",
+                dueStatus === "overdue" && "task-overdue",
+                dueStatus === "due-soon" && "task-due-soon",
             ]
                 .filter(Boolean)
                 .join(" ")}
@@ -64,6 +69,12 @@ function TaskCard({ task }: TaskCardProps) {
                     <span className={`priority-badge ${task.priority}`}>
                         {task.priority}
                     </span>
+                    {dueStatus === "overdue" && (
+                        <span className="due-badge due-badge-overdue">Overdue</span>
+                    )}
+                    {dueStatus === "due-soon" && (
+                        <span className="due-badge due-badge-soon">Due soon</span>
+                    )}
                 </div>
             </div>
 
