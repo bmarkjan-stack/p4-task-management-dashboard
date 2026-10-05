@@ -446,6 +446,28 @@ button {
     color: #9ca3af;
     cursor: grab;
     display: flex;
+    border: none;
+    background: transparent;
+    padding: 2px;
+    touch-action: none;
+}
+
+.drag-handle:active {
+    cursor: grabbing;
+}
+
+.drag-handle:focus-visible {
+    outline: 2px solid #2563eb;
+    outline-offset: 2px;
+    border-radius: 4px;
+}
+
+.task-badges {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
 }
 
 .priority-badge {
@@ -530,6 +552,16 @@ button {
 
 .task-actions .delete-button:hover {
     color: #dc2626;
+}
+
+.move-select {
+    border: 1px solid #e5e7eb;
+    border-radius: 7px;
+    background: white;
+    color: #4b5563;
+    font-size: 0.7rem;
+    padding: 5px 6px;
+    max-width: 108px;
 }
 
 /* Empty column */
@@ -652,6 +684,58 @@ button {
     .board-tabs {
         flex-wrap: wrap;
     }
+}
+
+/* Screen-reader-only text */
+
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* Drag-and-drop drop target */
+
+.task-list-over {
+    outline: 2px dashed #2563eb;
+    outline-offset: 4px;
+    border-radius: 10px;
+    background: rgba(37, 99, 235, 0.04);
+}
+
+/* Overdue / due-soon tasks */
+
+.task-card.task-overdue {
+    border-left: 3px solid #dc2626;
+}
+
+.task-card.task-due-soon {
+    border-left: 3px solid #f59e0b;
+}
+
+.due-badge {
+    padding: 4px 8px;
+    border-radius: 20px;
+    font-size: 0.62rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.due-badge-overdue {
+    background: #fef2f2;
+    color: #dc2626;
+}
+
+.due-badge-soon {
+    background: #fffbeb;
+    color: #b45309;
 }
 
 /* Board tabs */
@@ -805,4 +889,40 @@ button {
 
 .danger-button:hover {
     background: #b91c1c;
+}
+
+/* Undo toast */
+
+.toast {
+    position: fixed;
+    left: 50%;
+    bottom: 26px;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    background: #111827;
+    color: white;
+    padding: 13px 16px 13px 20px;
+    border-radius: 11px;
+    box-shadow: 0 12px 30px rgba(15, 23, 42, 0.3);
+    font-size: 0.85rem;
+    z-index: 100;
+}
+
+.toast-undo {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border: none;
+    background: #2563eb;
+    color: white;
+    padding: 7px 12px;
+    border-radius: 8px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.toast-undo:hover {
+    background: #1d4ed8;
 }
