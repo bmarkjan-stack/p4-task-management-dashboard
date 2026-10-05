@@ -2,6 +2,7 @@ import { useDroppable } from "@dnd-kit/core";
 import type { ReactNode } from "react";
 
 import type { Task, TaskStatus } from "../types/task";
+import TaskCard from "./TaskCard";
 
 interface ColumnProps {
     title: string;

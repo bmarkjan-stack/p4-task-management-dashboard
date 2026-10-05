@@ -60,6 +60,7 @@ function Board({ tasks }: BoardProps) {
                         title={title}
                         status={status}
                         icon={icon}
+                        sortBy={window.localStorage.getItem("sortBy") as string}
                         tasks={tasks.filter((task) => task.status === status)}
                     />
                 ))}
