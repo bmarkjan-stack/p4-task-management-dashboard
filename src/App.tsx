@@ -3,16 +3,21 @@ import { ClipboardCheck } from "lucide-react";
 
 import Header from "./components/Header";
 import TaskForm from "./components/TaskForm";
+import Board from "./components/Board";
 import SearchBar from "./components/SearchBar";
 import BoardTabs from "./components/BoardTabs";
+import Toast from "./components/Toast";
 
 import { useTaskContext } from "./context/TaskContext";
+import { filterTasks } from "./utils/taskFilters";
+import type { SortOption } from "./utils/taskSort";
 
 function App() {
     const { tasks, boards, activeBoardId } = useTaskContext();
 
     const [searchTerm, setSearchTerm] = useState("");
     const [priorityFilter, setPriorityFilter] = useState("all");
+    const [sortBy, setSortBy] = useState<SortOption>("manual");
 
     // All tasks on the active board, ignoring search/priority — used for the
     // "X of Y tasks displayed" count and the completion percentage.
@@ -36,6 +41,15 @@ function App() {
         [tasks, searchTerm, priorityFilter, activeBoardId]
     );
 
+    const completedCount = boardTasks.filter(
+        (task) => task.status === "completed"
+    ).length;
+
+    const completionPercentage =
+        boardTasks.length > 0
+            ? Math.round((completedCount / boardTasks.length) * 100)
+            : 0;
+
     const activeBoard = boards.find((board) => board.id === activeBoardId);
 
     return (
@@ -58,14 +72,20 @@ function App() {
                         <div className="progress-icon">
                             <ClipboardCheck size={22} />
                         </div>
+                        <div>
+                            <strong>{completionPercentage}%</strong>
+                            <span>Project completed</span>
+                        </div>
                     </div>
                 </section>
 
                 <SearchBar
                     searchTerm={searchTerm}
                     priorityFilter={priorityFilter}
+                    sortBy={sortBy}
                     onSearchChange={setSearchTerm}
                     onPriorityChange={setPriorityFilter}
+                    onSortChange={setSortBy}
                     onClear={() => setSearchTerm("")}
                 />
 
@@ -81,8 +101,12 @@ function App() {
                             </p>
                         </div>
                     </div>
+
+                    <Board tasks={filteredTasks} sortBy={sortBy} />
                 </section>
             </div>
+
+            <Toast />
         </div>
     );
 }
