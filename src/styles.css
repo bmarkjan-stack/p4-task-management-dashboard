@@ -528,7 +528,7 @@ button {
     color: #2563eb;
 }
 
-.task-actions button:last-child:hover {
+.task-actions .delete-button:hover {
     color: #dc2626;
 }
 
@@ -644,4 +644,165 @@ button {
     .secondary-button {
         width: 100%;
     }
+
+    .board {
+        grid-template-columns: 1fr;
+    }
+
+    .board-tabs {
+        flex-wrap: wrap;
+    }
+}
+
+/* Board tabs */
+
+.board-tabs {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 18px;
+}
+
+.board-tab {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    background: #eef1f6;
+    border-radius: 9px;
+    padding: 3px;
+}
+
+.board-tab button {
+    border: none;
+    background: transparent;
+    padding: 7px 12px;
+    border-radius: 7px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: #4b5563;
+}
+
+.board-tab.active {
+    background: #111827;
+}
+
+.board-tab.active button {
+    color: white;
+}
+
+.board-tab-delete {
+    display: grid;
+    place-items: center;
+    width: 24px;
+    height: 24px;
+    color: inherit;
+    opacity: 0.7;
+}
+
+.board-tab-delete:hover {
+    opacity: 1;
+    color: #dc2626;
+}
+
+.board-tab-add {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border: 1px dashed #9ca3af;
+    background: transparent;
+    color: #4b5563;
+    padding: 8px 12px;
+    border-radius: 9px;
+    font-size: 0.82rem;
+    font-weight: 700;
+}
+
+.board-tab-add:hover {
+    border-color: #2563eb;
+    color: #2563eb;
+}
+
+.board-tab-form {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.board-tab-form input {
+    border: 1px solid #d1d5db;
+    border-radius: 7px;
+    padding: 7px 10px;
+    font-size: 0.82rem;
+    width: 160px;
+}
+
+.board-tab-form button {
+    padding: 7px 10px;
+    border-radius: 7px;
+    border: none;
+    font-size: 0.8rem;
+    font-weight: 700;
+}
+
+/* Confirmation modal */
+
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(17, 24, 39, 0.5);
+    display: grid;
+    place-items: center;
+    padding: 20px;
+    z-index: 100;
+}
+
+.modal {
+    background: white;
+    border-radius: 14px;
+    padding: 26px;
+    max-width: 420px;
+    width: 100%;
+    box-shadow: 0 20px 45px rgba(15, 23, 42, 0.25);
+}
+
+.modal-icon {
+    width: 44px;
+    height: 44px;
+    display: grid;
+    place-items: center;
+    border-radius: 12px;
+    background: #fef2f2;
+    color: #dc2626;
+    margin-bottom: 14px;
+}
+
+.modal h2 {
+    margin: 0 0 8px;
+    font-size: 1.05rem;
+}
+
+.modal p {
+    margin: 0 0 20px;
+    color: #6b7280;
+    font-size: 0.85rem;
+    line-height: 1.5;
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.danger-button {
+    background: #dc2626;
+    color: white;
+    border: none;
+    border-radius: 9px;
+    padding: 10px 15px;
+    font-weight: 700;
+}
+
+.danger-button:hover {
+    background: #b91c1c;
 }
