@@ -10,6 +10,10 @@ import type { ReactNode } from "react";
 
 import type { Task, TaskStatus } from "../types/task";
 import type { Board } from "../types/board";
+import { loadState, saveState } from "../storage/localStorage";
+import { USE_API } from "../api/config";
+import * as tasksApi from "../api/tasksApi";
+import * as boardsApi from "../api/boardsApi";
 
 const DEFAULT_BOARD_ID = "board-default";
 const UNDO_WINDOW_MS = 5000;
@@ -195,6 +199,10 @@ interface TaskContextValue extends TaskState {
 const TaskContext = createContext<TaskContextValue | null>(null);
 
 function initState(): TaskState {
+    const saved = loadState();
+    if (saved) {
+        return saved;
+    }
     return {
         tasks: defaultTasks,
         boards: defaultBoards,
@@ -214,12 +222,26 @@ export function TaskProvider({ children }: { children: ReactNode }) {
     // Mirror every change to localStorage. This is the sole source of truth
     // in local-only mode, and doubles as an offline cache in API mode.
     useEffect(() => {
+        saveState({
+            tasks: state.tasks,
+            boards: state.boards,
+            activeBoardId: state.activeBoardId,
+        });
     }, [state.tasks, state.boards, state.activeBoardId]);
 
     // Optional: hydrate from a backend if VITE_API_URL is configured. Falls
     // back to whatever was loaded from localStorage if the API is unreachable.
     useEffect(() => {
-        Promise.all([ ])
+        if (!USE_API) {
+            return;
+        }
+        setIsSyncing(true);
+        Promise.all([boardsApi.getBoards(), tasksApi.getTasks()])
+            .then(([boards, tasks]) => {
+                if (boards.length > 0) {
+                    dispatch({ type: "LOAD", tasks, boards });
+                }
+            })
             .catch((error: unknown) => {
                 console.warn(
                     "Could not reach the TaskFlow API, staying in local mode.",
@@ -229,9 +251,14 @@ export function TaskProvider({ children }: { children: ReactNode }) {
             .finally(() => setIsSyncing(false));
     }, []);
 
-    function finalizeDelete() {
+    function finalizeDelete(id: string) {
         setPendingDelete(null);
         undoTimer.current = null;
+        if (USE_API) {
+            tasksApi
+                .deleteTask(id)
+                .catch((error: unknown) => console.warn("Sync failed:", error));
+        }
     }
 
     function addTask(data: Omit<Task, "id" | "createdAt">) {
@@ -241,14 +268,29 @@ export function TaskProvider({ children }: { children: ReactNode }) {
             createdAt: new Date().toISOString(),
         };
         dispatch({ type: "ADD_TASK", task: newTask });
+        if (USE_API) {
+            tasksApi
+                .createTask(newTask)
+                .catch((error: unknown) => console.warn("Sync failed:", error));
+        }
     }
 
     function updateTask(id: string, updates: Omit<Task, "id" | "createdAt">) {
         dispatch({ type: "UPDATE_TASK", id, updates });
+        if (USE_API) {
+            tasksApi
+                .updateTask(id, updates)
+                .catch((error: unknown) => console.warn("Sync failed:", error));
+        }
     }
 
     function moveTask(id: string, status: TaskStatus) {
         dispatch({ type: "MOVE_TASK", id, status });
+        if (USE_API) {
+            tasksApi
+                .updateTaskStatus(id, status)
+                .catch((error: unknown) => console.warn("Sync failed:", error));
+        }
     }
 
     function deleteTask(id: string) {
@@ -260,13 +302,13 @@ export function TaskProvider({ children }: { children: ReactNode }) {
         // Only one "undo" toast at a time — finalize any prior pending delete.
         if (pendingDelete && undoTimer.current) {
             window.clearTimeout(undoTimer.current);
-            finalizeDelete();
+            finalizeDelete(pendingDelete.task.id);
         }
 
         dispatch({ type: "REMOVE_TASK", id });
         setPendingDelete({ task });
         undoTimer.current = window.setTimeout(
-            () => finalizeDelete(),
+            () => finalizeDelete(task.id),
             UNDO_WINDOW_MS
         );
     }
@@ -294,6 +336,11 @@ export function TaskProvider({ children }: { children: ReactNode }) {
             createdAt: new Date().toISOString(),
         };
         dispatch({ type: "ADD_BOARD", board });
+        if (USE_API) {
+            boardsApi
+                .createBoard(board)
+                .catch((error: unknown) => console.warn("Sync failed:", error));
+        }
     }
 
     function deleteBoard(id: string) {
@@ -302,6 +349,11 @@ export function TaskProvider({ children }: { children: ReactNode }) {
             return;
         }
         dispatch({ type: "REMOVE_BOARD", id });
+        if (USE_API) {
+            boardsApi
+                .deleteBoard(id)
+                .catch((error: unknown) => console.warn("Sync failed:", error));
+        }
     }
 
     function setActiveBoard(id: string) {
