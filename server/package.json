@@ -1,0 +1,15 @@
+{
+  "name": "taskflow-server",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Minimal REST API for TaskFlow: boards + tasks, backed by a JSON file on disk.",
+  "scripts": {
+    "dev": "node --watch index.js",
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.21.1"
+  }
+}
