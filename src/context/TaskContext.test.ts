@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { taskReducer } from "./TaskContext";
+import { taskReducer } from "./taskReducer";
 import type { Task } from "../types/task";
 import type { Board } from "../types/board";
 
