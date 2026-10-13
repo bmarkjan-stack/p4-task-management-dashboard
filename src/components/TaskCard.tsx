@@ -3,7 +3,7 @@ import { CSS } from "@dnd-kit/utilities";
 import { CalendarDays, GripVertical, Pencil, Trash2 } from "lucide-react";
 
 import type { Task, TaskStatus } from "../types/task";
-import { useTaskContext } from "../context/TaskContext";
+import { useTaskContext } from "../context/useTaskContext";
 import { getDueStatus } from "../utils/dueDate";
 
 interface TaskCardProps {

@@ -8,7 +8,7 @@ import SearchBar from "./components/SearchBar";
 import BoardTabs from "./components/BoardTabs";
 import Toast from "./components/Toast";
 
-import { useTaskContext } from "./context/TaskContext";
+import { useTaskContext } from "./context/useTaskContext";
 import { filterTasks } from "./utils/taskFilters";
 import type { SortOption } from "./utils/taskSort";
 

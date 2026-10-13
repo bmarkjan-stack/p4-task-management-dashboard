@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Plus, Trash2 } from "lucide-react";
 
-import { useTaskContext } from "../context/TaskContext";
+import { useTaskContext } from "../context/useTaskContext";
 import ConfirmModal from "./ConfirmModal";
 
 function BoardTabs() {

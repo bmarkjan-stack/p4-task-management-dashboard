@@ -13,7 +13,7 @@ import type { ReactNode } from "react";
 
 import type { Task, TaskStatus } from "../types/task";
 import type { SortOption } from "../utils/taskSort";
-import { useTaskContext } from "../context/TaskContext";
+import { useTaskContext } from "../context/useTaskContext";
 import Column from "./Column";
 
 interface BoardProps {
