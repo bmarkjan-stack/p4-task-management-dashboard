@@ -99,7 +99,7 @@ export function TaskProvider({ children }: { children: ReactNode }) {
     const [pendingDelete, setPendingDelete] = useState<PendingDelete | null>(
         null
     );
-    const [isSyncing, setIsSyncing] = useState(false);
+    const [isSyncing, setIsSyncing] = useState(USE_API);
     const undoTimer = useRef<number | null>(null);
 
     // Mirror every change to localStorage. This is the sole source of truth
