@@ -1,0 +1,31 @@
+{
+  "boards": [
+    {
+      "id": "board-default",
+      "name": "My Board",
+      "createdAt": "2026-01-01T00:00:00.000Z"
+    }
+  ],
+  "tasks": [
+    {
+      "id": "task-1",
+      "title": "Build portfolio website",
+      "description": "Create a responsive portfolio to showcase projects and certifications.",
+      "status": "todo",
+      "priority": "high",
+      "dueDate": "2026-08-28",
+      "createdAt": "2026-01-01T00:00:00.000Z",
+      "boardId": "board-default"
+    },
+    {
+      "id": "task-2",
+      "title": "Weather API integration",
+      "description": "Connect the weather dashboard to a public weather API.",
+      "status": "in-progress",
+      "priority": "high",
+      "dueDate": "2026-08-24",
+      "createdAt": "2026-01-01T00:00:00.000Z",
+      "boardId": "board-default"
+    }
+  ]
+}

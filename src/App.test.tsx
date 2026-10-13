@@ -24,7 +24,7 @@ describe("App", () => {
         );
         await user.click(screen.getByRole("button", { name: /add task/i }));
 
-        const todoColumn = screen.getByText("To Do").closest("section");
+        const todoColumn = screen.getByRole("heading", { name: "To Do" }).closest("section")
         expect(todoColumn).not.toBeNull();
         expect(
             within(todoColumn as HTMLElement).getByText("Write onboarding docs")
@@ -48,16 +48,41 @@ describe("App", () => {
         renderApp();
 
         await user.click(
-            screen.getByRole("button", { name: /delete build portfolio website/i })
+            screen.getByRole("button", {
+                name: /delete build portfolio website/i,
+            })
         );
 
+        // The task card should disappear, even though the toast shows its title.
         expect(
-            screen.queryByText("Build portfolio website")
+            screen.queryByRole("heading", {
+                name: "Build portfolio website",
+            })
         ).not.toBeInTheDocument();
-        expect(screen.getByRole("status")).toHaveTextContent(/deleted/i);
 
-        await user.click(screen.getByRole("button", { name: /undo/i }));
-        expect(screen.getByText("Build portfolio website")).toBeInTheDocument();
+        // Verify the deletion toast and its Undo button.
+        const toast = screen.getByText(/deleted/i).closest(".toast");
+
+        expect(toast).not.toBeNull();
+        expect(toast).toHaveTextContent("Build portfolio website");
+        expect(
+            within(toast as HTMLElement).getByRole("button", {
+                name: /undo/i,
+            })
+        ).toBeInTheDocument();
+
+        await user.click(
+            within(toast as HTMLElement).getByRole("button", {
+                name: /undo/i,
+            })
+        );
+
+        // Undo should restore the task card.
+        expect(
+            screen.getByRole("heading", {
+                name: "Build portfolio website",
+            })
+        ).toBeInTheDocument();
     });
 
     it("moves a task to a new column via its Move to menu", async () => {
@@ -69,7 +94,7 @@ describe("App", () => {
         });
         await user.selectOptions(select, "In Progress");
 
-        const inProgressColumn = screen.getByText("In Progress").closest("section");
+        const inProgressColumn = screen.getByRole("heading", { name: "In Progress" }).closest("section")
         expect(inProgressColumn).not.toBeNull();
         expect(
             within(inProgressColumn as HTMLElement).getByText(
