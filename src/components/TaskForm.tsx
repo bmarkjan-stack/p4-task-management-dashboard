@@ -47,7 +47,7 @@ function TaskForm() {
             status: editingTask?.status ?? ("todo" as const),
             priority,
             dueDate,
-            boardId: editingTask ?? activeBoardId,
+            boardId: editingTask?.boardId ?? activeBoardId,
         };
 
         if (editingTask) {
