@@ -1,152 +1,221 @@
 # TaskFlow — Task Management Dashboard
 
-A responsive task management dashboard built with React, TypeScript, and
-Vite, inspired by tools like Trello and Jira. Organize tasks across boards,
-track them through To Do / In Progress / Completed, and filter, search, and
-sort as the list grows.
+A responsive task management dashboard built with React, TypeScript, and Vite, inspired by tools like Trello and Jira. Organize tasks across boards, move them through To Do, In Progress, and Completed, and search, filter, and sort as the list grows.
 
-Built as a portfolio project; see [COMMIT_ROADMAP.md](./COMMIT_ROADMAP.md)
-for the sequence of improvements made to it, commit by commit.
+It runs fully in the browser with no backend. An optional Express API adds shared, persistent storage.
+
+![TaskFlow live demo](live-demo/task-management-dashboard-live-demo.gif)
+
+---
+
+## Table of Contents
+
+- [Features](#features)
+- [Technologies](#technologies)
+- [Getting Started](#getting-started)
+- [Running the Backend (Optional)](#running-the-backend-optional)
+- [Environment Variables](#environment-variables)
+- [How It Works](#how-it-works)
+- [Testing](#testing)
+- [Deployment](#deployment)
+- [React Concepts Demonstrated](#react-concepts-demonstrated)
+- [Project Structure](#project-structure)
+- [Author](#author)
+
+---
 
 ## Features
 
-- Multiple boards — create, switch between, and delete boards (deleting one
-  removes its tasks too, behind a confirmation dialog)
-- Create, edit, and delete tasks
-- Drag and drop tasks between columns — works with mouse, touch, and
-  keyboard (via [@dnd-kit](https://dndkit.com/)), with an accessible
-  "Move to" menu on every card as a fallback
-- Optimistic delete with a 5-second "Undo" toast
-- To Do / In Progress / Completed columns
-- High / medium / low priority levels
-- Overdue and due-soon badges on task cards
-- Sort each board by due date, priority, creation date, or manual order
+**Boards**
+
+- Create, switch between, and delete boards
+- Deleting a board also deletes its tasks, after a confirmation dialog
+
+**Tasks**
+
+- Create, edit, and delete tasks, with form validation
+- Priority levels: high, medium, and low
+- Due dates, with **Overdue** and **Due soon** badges on cards (due within the next two days). Completed tasks are never flagged.
+- **Optimistic delete** with a 5-second **Undo** toast
+
+**Board views**
+
+- Three columns: **To Do**, **In Progress**, and **Completed**
+- Drag and drop between columns with a mouse, touch, or keyboard (via [@dnd-kit](https://dndkit.com/))
+- A **Move to** menu on every card, as an accessible alternative to dragging
+- Sort by due date, priority, creation date, or manual order
 - Search tasks, and filter by priority
-- Project completion percentage per board
-- Persistent data via localStorage, with an optional backend (see below)
-- Responsive design, empty-state messages, form validation
-- Automated tests (Vitest + React Testing Library)
+- A completion percentage for each board
+
+**Storage and UX**
+
+- Data persists in `localStorage` by default
+- Optional backend for shared, persistent storage
+- Empty-state messages and a responsive layout for phones, tablets, and desktops
+
+---
 
 ## Technologies
 
-- React 19, TypeScript, Vite
-- [@dnd-kit](https://dndkit.com/) for accessible drag-and-drop
-- Lucide React (icons)
-- Vitest + React Testing Library (tests)
-- Optional backend: Node.js, Express, a JSON file on disk (see `/server`)
+- **React 19** and **TypeScript**, built with **Vite**
+- **@dnd-kit** for accessible drag and drop
+- **Lucide React** for icons
+- **Vitest** and **React Testing Library** for tests
+- Optional backend: **Node.js**, **Express**, and a JSON file on disk (see [`server/`](./server))
 
-## Getting started
+---
+
+## Getting Started
+
+**Requirements:** a current Node.js LTS release and npm.
 
 ```bash
 npm install
 npm run dev
 ```
 
-By default the app runs entirely client-side, persisting to `localStorage`
-— no backend required.
+Open the local URL that Vite prints. The app runs client-side, and your data stays in the browser.
 
-## Running the backend (optional)
+---
 
-To get shared, persistent storage instead of `localStorage`, run the
-included API server and point the frontend at it.
+## Running the Backend (Optional)
+
+To store data on a server instead of in the browser, run the included API and point the frontend at it.
 
 ```bash
-# terminal 1 — the API
+# Terminal 1: the API
 cd server
 npm install
-npm run dev          # http://localhost:4000
+npm run dev              # http://localhost:4000
 
-# terminal 2 — the frontend
-cp .env.example .env # sets VITE_API_URL=http://localhost:4000/api
+# Terminal 2: the frontend
+cp .env.example .env     # sets VITE_API_URL=http://localhost:4000/api
 npm run dev
 ```
 
-See [server/README.md](./server/README.md) for the API's endpoints and its
-own deployment notes.
+When `VITE_API_URL` is set, the app loads and saves boards and tasks through the API. See [server/README.md](./server/README.md) for the endpoints.
 
-## Environment variables
+---
 
-| Variable        | Default   | Description                                                                 |
-| ---------------- | --------- | ---------------------------------------------------------------------------- |
-| `VITE_API_URL`   | _(unset)_ | Base URL of a running TaskFlow API. Leave unset to run fully client-side.   |
+## Environment Variables
 
-See `.env.example`.
+| Variable | Default | Description |
+| --- | --- | --- |
+| `VITE_API_URL` | _(unset)_ | Base URL of a running TaskFlow API. Leave it unset to run fully in the browser. |
+
+The variable is read at build time by Vite. Put it in `.env` (copy `.env.example`) or in your host's environment settings.
+
+---
+
+## How It Works
+
+**State.** `TaskContext` holds all boards and tasks in a `useReducer`. Components read the state and call actions through the `useTaskContext` hook, so no props are passed down through several levels.
+
+**Persistence.**
+
+- **Local mode (default):** the full state is saved to `localStorage` under the key `taskflow-state-v2` on every change. If the saved data is missing or malformed, the app starts with a fresh board. If storage is unavailable, such as in private browsing, the app keeps working without saving.
+- **API mode:** when `VITE_API_URL` is set, each change is sent to the server. The server stores everything in `server/data/db.json`.
+
+**Undo.** Deleting a task removes it from the screen at once. The task is restored if you press **Undo** within 5 seconds. After that, the deletion is final.
+
+**Due dates.** `getDueStatus()` compares a task's due date with today's date and returns one of four states: `overdue`, `due-soon` (today, tomorrow, or the day after), `normal`, or `none`.
+
+---
 
 ## Testing
 
 ```bash
-npm run test           # run once
-npm run test:watch     # watch mode
-npm run test:coverage  # with coverage
+npm run test             # run once
+npm run test:watch       # watch mode
+npm run test:coverage    # with coverage
 ```
 
-Covers the search/filter and sort utilities, the due-date classifier, the
-task reducer (add/update/move/delete/undo, board deletion), and the core app
-flows (adding a task, searching, deleting with undo, moving a task).
+The suite covers:
+
+- **Utilities:** search and priority filtering, all four sort orders, and the due-date classifier
+- **Reducer:** add, update, move, delete, restore (undo), and board deletion, including reassigning the active board
+- **App flows (React Testing Library):** adding a task, searching, deleting with undo, and moving a task with the Move to menu
+
+---
 
 ## Deployment
 
-**Frontend** — any static host works (it's a Vite app):
+**Frontend.** Any static host works, because this is a Vite app.
 
-1. `npm run build` — outputs to `dist/`
-2. Deploy `dist/` to [Vercel](https://vercel.com) or
-   [Netlify](https://netlify.com) (both auto-detect Vite; just point them at
-   this repo). If you're using the optional backend, set `VITE_API_URL` in
-   the host's environment variables to your deployed API's URL.
+1. Run `npm run build`. The output goes to `dist/`.
+2. Deploy the project to [Vercel](https://vercel.com) or [Netlify](https://netlify.com). Both detect Vite automatically.
+3. If you use the backend, set `VITE_API_URL` to your deployed API's address in the host's environment settings. Vite reads it at build time, so rebuild after changing it.
 
-**Backend** _(optional)_ — a plain Node/Express app, so it deploys to any
-Node host with a persistent filesystem — [Render](https://render.com),
-[Railway](https://railway.app), Fly.io, or a small VPS. See
-[server/README.md](./server/README.md) for details.
+**Backend (optional).** The API is a plain Node and Express app. It runs on any Node host that has a persistent filesystem, such as [Render](https://render.com), [Railway](https://railway.app), Fly.io, or a small VPS. Serverless platforms usually don't keep local files between requests, so they need a real database instead of `db.json`. See [server/README.md](./server/README.md).
 
-Once deployed, put the live link at the top of this README under
-[Live demo](#live-demo).
+---
 
-## React concepts demonstrated
+## React Concepts Demonstrated
 
 - Components, composition, props, and children
-- `useState`, `useEffect`, `useMemo`, `useReducer`, `useContext`
-- A custom hook (`useTaskContext`) backed by a context + reducer, replacing
-  prop drilling for shared state and mutations
-- Controlled forms, conditional rendering, list rendering with `map()`
-- Accessible drag-and-drop (pointer, touch, and keyboard sensors)
-- TypeScript interfaces, union types, and discriminated unions (the reducer's
-  action type)
-- Client-server communication via `fetch`, with a graceful local-only fallback
-- Automated testing (unit tests for pure logic, integration tests with RTL)
+- `useState`, `useEffect`, `useMemo`, `useReducer`, and `useContext`
+- A custom hook (`useTaskContext`) backed by a context and a reducer
+- Controlled forms, conditional rendering, and lists rendered with `map()`
+- Accessible drag and drop with pointer, touch, and keyboard sensors
+- TypeScript interfaces, union types, and a discriminated-union action type for the reducer
+- Client-server communication with `fetch`, and a fallback to local-only mode
+- Testing pure logic with unit tests, and user flows with integration tests
 
-## Project structure
+---
+
+## Project Structure
 
 ```text
-src/
-├── api/                  # fetch-based client for the optional backend
-│   ├── boardsApi.ts
-│   ├── client.ts
-│   ├── config.ts
-│   └── tasksApi.ts
-├── components/
-│   ├── Board.tsx
-│   ├── BoardTabs.tsx
-│   ├── Column.tsx
-│   ├── ConfirmModal.tsx
-│   ├── Header.tsx
-│   ├── SearchBar.tsx
-│   ├── TaskCard.tsx
-│   ├── TaskForm.tsx
-│   └── Toast.tsx
-├── context/
-│   └── TaskContext.tsx   # state, reducer, and all mutations
-├── storage/
-│   └── localStorage.ts
-├── types/
-│   ├── board.ts
-│   └── task.ts
-├── utils/
-│   ├── dueDate.ts
-│   ├── taskFilters.ts
-│   └── taskSort.ts
-├── App.tsx
-└── main.tsx
-
-server/                   # optional Express + JSON-file backend
+task-management-dashboard/
+├── src/
+│   ├── api/                  # fetch-based client for the optional backend
+│   │   ├── boardsApi.ts
+│   │   ├── client.ts
+│   │   ├── config.ts         # reads VITE_API_URL
+│   │   └── tasksApi.ts
+│   ├── components/
+│   │   ├── Board.tsx         # the three status columns
+│   │   ├── BoardTabs.tsx     # switch, create, and delete boards
+│   │   ├── Column.tsx
+│   │   ├── ConfirmModal.tsx
+│   │   ├── Header.tsx
+│   │   ├── SearchBar.tsx
+│   │   ├── TaskCard.tsx
+│   │   ├── TaskForm.tsx
+│   │   └── Toast.tsx         # the undo toast
+│   ├── context/
+│   │   ├── TaskContext.tsx   # provider: state, persistence, and mutations
+│   │   ├── taskReducer.ts    # reducer and action types
+│   │   ├── taskContextObject.ts
+│   │   └── useTaskContext.ts
+│   ├── storage/
+│   │   └── localStorage.ts
+│   ├── types/
+│   │   ├── board.ts
+│   │   └── task.ts
+│   ├── utils/
+│   │   ├── dueDate.ts
+│   │   ├── taskFilters.ts
+│   │   └── taskSort.ts
+│   ├── App.tsx
+│   └── main.tsx
+├── server/                   # optional Express API backed by a JSON file
+│   ├── routes/
+│   │   ├── boards.js
+│   │   └── tasks.js
+│   ├── data/db.json          # sample data
+│   ├── db.js                 # read and write the JSON file
+│   └── index.js
+├── live-demo/                # demo recording used in this README
+├── .env.example
+├── package.json
+├── vite.config.ts
+└── vitest.config.ts
 ```
+
+---
+
+## Author
+
+- GitHub: https://github.com/bmarkjan-stack
+- Repository: https://github.com/bmarkjan-stack/p4-task-management-dashboard
