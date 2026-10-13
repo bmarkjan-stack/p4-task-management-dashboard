@@ -2,13 +2,17 @@ import { useState } from "react";
 import { Plus, Trash2 } from "lucide-react";
 
 import { useTaskContext } from "../context/TaskContext";
+import ConfirmModal from "./ConfirmModal";
 
 function BoardTabs() {
-    const { boards, activeBoardId, setActiveBoard, addBoard } =
+    const { boards, activeBoardId, setActiveBoard, addBoard, deleteBoard } =
         useTaskContext();
 
     const [isAdding, setIsAdding] = useState(false);
     const [newBoardName, setNewBoardName] = useState("");
+    const [boardPendingDeleteId, setBoardPendingDeleteId] = useState<
+        string | null
+    >(null);
 
     function handleAddBoard(event: React.FormEvent<HTMLFormElement>) {
         event.preventDefault();
@@ -19,6 +23,10 @@ function BoardTabs() {
         setNewBoardName("");
         setIsAdding(false);
     }
+
+    const boardPendingDelete = boards.find(
+        (board) => board.id === boardPendingDeleteId
+    );
 
     return (
         <nav className="board-tabs" aria-label="Boards">
@@ -38,7 +46,7 @@ function BoardTabs() {
                             className="board-tab-delete"
                             aria-label={`Delete board ${board.name}`}
                             title="Delete board"
-                            onClick={() => (board.id)}
+                            onClick={() => setBoardPendingDeleteId(board.id)}
                         >
                             <Trash2 size={13} />
                         </button>
@@ -79,6 +87,19 @@ function BoardTabs() {
                     <Plus size={15} />
                     New board
                 </button>
+            )}
+
+            {boardPendingDelete && (
+                <ConfirmModal
+                    title="Delete this board?"
+                    message={`This permanently deletes "${boardPendingDelete.name}" and every task on it. This can't be undone.`}
+                    confirmLabel="Delete board"
+                    onConfirm={() => {
+                        deleteBoard(boardPendingDelete.id);
+                        setBoardPendingDeleteId(null);
+                    }}
+                    onCancel={() => setBoardPendingDeleteId(null)}
+                />
             )}
         </nav>
     );

@@ -12,11 +12,13 @@ import { CheckCircle2, Circle, Clock3 } from "lucide-react";
 import type { ReactNode } from "react";
 
 import type { Task, TaskStatus } from "../types/task";
+import type { SortOption } from "../utils/taskSort";
 import { useTaskContext } from "../context/TaskContext";
 import Column from "./Column";
 
 interface BoardProps {
     tasks: Task[];
+    sortBy: SortOption;
 }
 
 const COLUMN_META: Array<{ status: TaskStatus; title: string; icon: ReactNode }> = [
@@ -25,7 +27,7 @@ const COLUMN_META: Array<{ status: TaskStatus; title: string; icon: ReactNode }>
     { status: "completed", title: "Completed", icon: <CheckCircle2 size={19} /> },
 ];
 
-function Board({ tasks }: BoardProps) {
+function Board({ tasks, sortBy }: BoardProps) {
     const { moveTask } = useTaskContext();
 
     // PointerSensor covers mouse/trackpad, TouchSensor covers phones and
@@ -60,7 +62,7 @@ function Board({ tasks }: BoardProps) {
                         title={title}
                         status={status}
                         icon={icon}
-                        sortBy={window.localStorage.getItem("sortBy") as string}
+                        sortBy={sortBy}
                         tasks={tasks.filter((task) => task.status === status)}
                     />
                 ))}
