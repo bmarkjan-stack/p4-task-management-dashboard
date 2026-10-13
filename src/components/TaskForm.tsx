@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Plus, Save, X } from "lucide-react";
 
 import type { Priority } from "../types/task";
@@ -14,18 +14,20 @@ function TaskForm() {
     const [dueDate, setDueDate] = useState("");
 
     // Bug fix: these fields used to be initialized once via useState's
-    // initializer (`useState(editingTask?.title ?? "")`), which only runs on
-    // the component's first mount. Because TaskForm stays mounted the whole
-    // time, clicking "Edit" on task A and then, without cancelling, clicking
-    // "Edit" on task B left task A's values showing under task B's edit
-    // session. Syncing from `editingTask` in an effect keeps the form
-    // correct no matter which task (or none) is being edited.
-    useEffect(() => {
+    // initializer, which only runs on the component's first mount. Because
+    // TaskForm stays mounted the whole time, clicking "Edit" on task A and
+    // then, without cancelling, clicking "Edit" on task B left task A's values
+    // showing under task B's edit session. We re-sync whenever `editingTask`
+    // changes. This is done during render rather than in an effect, so the
+    // form is never out of date for a frame and no extra render pass is needed.
+    const [syncedTask, setSyncedTask] = useState(editingTask);
+    if (syncedTask !== editingTask) {
+        setSyncedTask(editingTask);
         setTitle(editingTask?.title ?? "");
         setDescription(editingTask?.description ?? "");
         setPriority(editingTask?.priority ?? "medium");
         setDueDate(editingTask?.dueDate ?? "");
-    }, [editingTask]);
+    }
 
     function resetForm() {
         setTitle("");
