@@ -1,11 +1,4 @@
-import {
-    createContext,
-    useContext,
-    useEffect,
-    useRef,
-    useState,
-    useReducer,
-} from "react";
+import { useEffect, useRef, useState, useReducer } from "react";
 import type { ReactNode } from "react";
 
 import type { Task, TaskStatus } from "../types/task";
@@ -16,6 +9,11 @@ import * as tasksApi from "../api/tasksApi";
 import * as boardsApi from "../api/boardsApi";
 import { taskReducer } from "./taskReducer";
 import type { TaskState } from "./taskReducer";
+import { TaskContext } from "./taskContextObject";
+import type {
+    PendingDelete,
+    TaskContextValue,
+} from "./taskContextObject";
 
 const DEFAULT_BOARD_ID = "board-default";
 const UNDO_WINDOW_MS = 5000;
@@ -82,27 +80,6 @@ const defaultTasks: Task[] = [
         boardId: DEFAULT_BOARD_ID,
     },
 ];
-
-interface PendingDelete {
-    task: Task;
-}
-
-interface TaskContextValue extends TaskState {
-    pendingDelete: PendingDelete | null;
-    isSyncing: boolean;
-    addTask: (data: Omit<Task, "id" | "createdAt">) => void;
-    updateTask: (id: string, updates: Omit<Task, "id" | "createdAt">) => void;
-    deleteTask: (id: string) => void;
-    undoDeleteTask: () => void;
-    moveTask: (id: string, status: TaskStatus) => void;
-    setEditingTask: (task: Task | null) => void;
-    cancelEdit: () => void;
-    addBoard: (name: string) => void;
-    deleteBoard: (id: string) => void;
-    setActiveBoard: (id: string) => void;
-}
-
-const TaskContext = createContext<TaskContextValue | null>(null);
 
 function initState(): TaskState {
     const saved = loadState();
@@ -292,12 +269,4 @@ export function TaskProvider({ children }: { children: ReactNode }) {
     return (
         <TaskContext.Provider value={value}>{children}</TaskContext.Provider>
     );
-}
-
-export function useTaskContext(): TaskContextValue {
-    const context = useContext(TaskContext);
-    if (!context) {
-        throw new Error("useTaskContext must be used within a TaskProvider");
-    }
-    return context;
 }
